@@ -235,7 +235,7 @@ also known as DXTn or DXTC) for Mesa.")
 (define-public mesa
   (package
     (name "mesa")
-    (version "20.2.4")
+    (version "21.0.2")
     (source
       (origin
         (method url-fetch)
@@ -247,7 +247,7 @@ also known as DXTn or DXTC) for Mesa.")
                                   version "/mesa-" version ".tar.xz")))
         (sha256
          (base32
-          "14m09bk7akj0k02lg8fhvvzbdsashlbdsgl2cw7wbqfj2mhdqwh5"))
+          "122vvyk6dgvbfl119pysbdyii6f255r0cg7c8gp2sdsanmdxrha6"))
         (patches
          (search-patches "mesa-skip-tests.patch"))))
     (build-system meson-build-system)
@@ -303,11 +303,11 @@ also known as DXTn or DXTC) for Mesa.")
               '("-Dgallium-drivers=iris,nouveau,r300,r600,radeonsi,svga,swrast,virgl")))
          ;; Enable various optional features.  TODO: opencl requires libclc,
          ;; omx requires libomxil-bellagio
-         "-Dplatforms=x11,drm,surfaceless,wayland"
+         "-Dplatforms=x11,wayland"
          "-Dglx=dri"        ;Thread Local Storage, improves performance
          ;; "-Dopencl=true"
          ;; "-Domx=true"
-         "-Dosmesa=gallium"
+         "-Dosmesa=true"
          "-Dgallium-xa=true"
 
          ;; features required by wayland
@@ -339,10 +339,10 @@ also known as DXTn or DXTC) for Mesa.")
          ,@(match (%current-system)
              ((or "x86_64-linux" "i686-linux")
               '("-Ddri-drivers=i915,i965,nouveau,r200,r100"
-                "-Dllvm=true"))         ; default is x86/x86_64 only
+                "-Dllvm=enabled"))         ; default is x86/x86_64 only
              ("powerpc64le-linux"
               '("-Ddri-drivers=nouveau,r200,r100"
-                "-Dllvm=true"))
+                "-Dllvm=enabled"))
              (_
               '("-Ddri-drivers=nouveau,r200,r100"))))
 
