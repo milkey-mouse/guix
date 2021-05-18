@@ -1666,6 +1666,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/rust-1.25-accept-more-detailed-gdb-lines.patch \
   %D%/packages/patches/rust-1.45-linker-locale.patch		\
   %D%/packages/patches/rust-1.48-linker-locale.patch		\
+  %D%/packages/patches/rust-1.49-llvm-cov-no-debug.patch	\
   %D%/packages/patches/rust-bootstrap-stage0-test.patch		\
   %D%/packages/patches/rust-coresimd-doctest.patch		\
   %D%/packages/patches/rust-ndarray-remove-blas-src-dep.patch	\

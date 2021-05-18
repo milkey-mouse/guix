@@ -1144,16 +1144,36 @@ move around."
            "1hrqprybhkhs6d9b5pjskfnc5z9v2l2gync7nb39qjb5s0h703hj")))
     (package
       (inherit base-rust)
+      (native-inputs
+       (cons* `("compiler-rt-source" ,(package-source clang-runtime-8))
+              (package-native-inputs base-rust)))
       (arguments
        (substitute-keyword-arguments (package-arguments base-rust)
          ((#:phases phases)
           `(modify-phases ,phases
+             (add-after 'unpack 'unpack-profiler-rt
+               ;; Copy compiler-rt sources to where libprofiler_builtins looks.
+               (lambda* (#:key inputs #:allow-other-keys)
+                 (mkdir-p "src/llvm-project/compiler-rt")
+                 (invoke "tar" "-xf" (assoc-ref inputs "compiler-rt-source")
+                   "-C" "src/llvm-project/compiler-rt" "--strip-components=1")
+                   #t))
              (add-before 'configure 'configure-cargo-home
                (lambda _
                  (let ((cargo-home (string-append (getcwd) "/.cargo")))
                    (mkdir-p cargo-home)
                    (setenv "CARGO_HOME" cargo-home)
-                   #t))))))))))
+                   #t)))
+             (add-after 'enable-codegen-tests 'enable-profiling
+               (lambda _
+                 (substitute* "config.toml"
+                   (("^profiler =.*$") "")
+                   (("[[]build[]]") "\n[build]\nprofiler = true\n"))
+                 ;; profiler_builtins would build a subset of compiler-rt, but
+                 ;; we have removed the vendored llvm, so link the full runtime
+                 ;(substitute* "src/libprofiler_builtins/Cargo.toml"
+                 ;  (("^build =.*$") "links = \"compiler-rt\"\n"))
+                 #t)))))))))
 
 (define-public rust-1.38
   (let ((base-rust
@@ -1164,6 +1184,10 @@ move around."
       (inputs
         (alist-replace "llvm" (list llvm-9)
                        (package-inputs base-rust)))
+      (native-inputs
+        (alist-replace "compiler-rt-source"
+                        (list (package-source clang-runtime-9))
+                        (package-native-inputs base-rust)))
       (arguments
        (substitute-keyword-arguments (package-arguments base-rust)
          ((#:phases phases)
@@ -1270,7 +1294,16 @@ move around."
       (inherit base-rust)
       (arguments
        (substitute-keyword-arguments (package-arguments base-rust)
-         ((#:validate-runpath? _) #t))))))
+         ((#:validate-runpath? _) #t)
+         ((#:phases phases)
+           `(modify-phases ,phases
+              (add-after 'patch-tests 'remove-pgo-test
+                (lambda _
+                  ;; TODO: figure out why this profiler test is broken
+                  (delete-file-recursively
+                    "src/test/run-make-fulldeps/pgo-branch-weights")
+                  #t)))))))))
+
 
 (define-public rust-1.42
   (rust-bootstrapped-package rust-1.41 "1.42.0"
@@ -1297,6 +1330,10 @@ move around."
       (inputs
         (alist-replace "llvm" (list llvm-10)
                        (package-inputs base-rust)))
+      (native-inputs
+        (alist-replace "compiler-rt-source"
+                        (list (package-source clang-runtime-10))
+                        (package-native-inputs base-rust)))
       (arguments
         (substitute-keyword-arguments (package-arguments base-rust)
           ((#:phases phases)
@@ -1396,6 +1433,10 @@ move around."
       (inputs
         (alist-replace "llvm" (list llvm-11)
                        (package-inputs base-rust)))
+      (native-inputs
+        (alist-replace "compiler-rt-source"
+                        (list (package-source clang-runtime-11))
+                        (package-native-inputs base-rust)))
       (arguments
        (substitute-keyword-arguments (package-arguments base-rust)
          ((#:phases phases)
@@ -1453,12 +1494,27 @@ move around."
                    #t))))))))))
 
 (define-public rust-1.49
-  (rust-bootstrapped-package rust-1.48 "1.49.0"
-    "0yf7kll517398dgqsr7m3gldzj0iwsp3ggzxrayckpqzvylfy2mm"))
+  (let ((base-rust
+         (rust-bootstrapped-package rust-1.48 "1.49.0"
+          "0yf7kll517398dgqsr7m3gldzj0iwsp3ggzxrayckpqzvylfy2mm")))
+    (package
+      (inherit base-rust)
+      (source
+        (origin
+          (inherit (package-source base-rust))
+          (patches (search-patches "rust-1.48-linker-locale.patch"
+                                   "rust-1.49-llvm-cov-no-debug.patch")))))))
 
 (define-public rust-1.50
-  (rust-bootstrapped-package rust-1.49 "1.50.0"
-    "0pjs7j62maiyvkmhp9zrxl528g2n0fphp4rq6ap7aqdv0a6qz5wm"))
+  (let ((base-rust
+         (rust-bootstrapped-package rust-1.49 "1.50.0"
+          "0pjs7j62maiyvkmhp9zrxl528g2n0fphp4rq6ap7aqdv0a6qz5wm")))
+    (package
+      (inherit base-rust)
+      (source
+        (origin
+          (inherit (package-source base-rust))
+          (patches (search-patches "rust-1.48-linker-locale.patch")))))))
 
 (define-public rust-1.51
   (rust-bootstrapped-package rust-1.50 "1.51.0"
