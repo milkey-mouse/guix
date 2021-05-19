@@ -853,7 +853,29 @@ safety and thread safety guarantees.")
       (inherit base-rust)
       (inputs
         (alist-replace "llvm" (list llvm-12)
-                       (package-inputs base-rust))))))
+                       (package-inputs base-rust)))
+      ;; Add compiler-rt-source for libprofiler_builtins (needed for profiling
+      ;; support), which normally vendors its own copy of compiler-rt.
+      (native-inputs (cons*
+                      `("compiler-rt-source" ,(package-source clang-runtime-12))
+                      (package-native-inputs base-rust)))
+      (arguments
+       (substitute-keyword-arguments (package-arguments base-rust)
+         ((#:phases phases)
+          `(modify-phases ,phases
+             (add-after 'unpack 'unpack-profiler-rt
+               ;; Copy compiler-rt sources to where libprofiler_builtins
+               ;; looks for its vendored copy.
+               (lambda* (#:key inputs #:allow-other-keys)
+                 (mkdir-p "src/llvm-project/compiler-rt")
+                 (invoke "tar" "-xf" (assoc-ref inputs "compiler-rt-source")
+                   "-C" "src/llvm-project/compiler-rt" "--strip-components=1")
+                   #t))
+             (add-after 'enable-codegen-tests 'enable-profiling
+               (lambda _
+                 (substitute* "config.toml"
+                   (("^profiler =.*$") "")
+                   (("[[]build[]]") "\n[build]\nprofiler = true\n")))))))))))
 
 ;;; Note: Only the latest versions of Rust are supported and tested.  The
 ;;; intermediate rusts are built for bootstrapping purposes and should not
