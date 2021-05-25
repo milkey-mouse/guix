@@ -846,9 +846,9 @@ safety and thread safety guarantees.")
     "0ixqkqglv3isxbvl4ldr4byrkx692wghsz3fasy1pn5kr2prnsvs"))
 
 (define-public rust-1.52
-  (let ((base-rust
-         (rust-bootstrapped-package rust-1.51 "1.52.1"
-           "165zs3xzp9dravybwslqs1qhn35agp6wacmzpymqg3qfdni26vrs")))
+  (let ((base-rust (rust-bootstrapped-package
+                    rust-1.51 "1.52.1"
+                    "165zs3xzp9dravybwslqs1qhn35agp6wacmzpymqg3qfdni26vrs")))
     (package
       (inherit base-rust)
       (inputs
@@ -859,4 +859,4 @@ safety and thread safety guarantees.")
 ;;; intermediate rusts are built for bootstrapping purposes and should not
 ;;; be relied upon.  This is to ease maintenance and reduce the time
 ;;; required to build the full Rust bootstrap chain.
-(define-public rust rust-1.49)
+(define-public rust rust-1.52)
