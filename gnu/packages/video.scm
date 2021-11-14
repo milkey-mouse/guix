@@ -2898,6 +2898,19 @@ can use youtube-dl or yt-dlp packages to download videos, the focus is more on
 images and image hosting sites.")
     (license license:gpl2)))
 
+(define-public mpv-libplacebo
+  (package
+    (inherit mpv)
+    (name "mpv-libplacebo")
+    (inputs (append `(("libepoxy" ,libepoxy)
+                      ("libplacebo" ,libplacebo))
+                    (package-inputs mpv)))
+    (arguments
+     (substitute-keyword-arguments (package-arguments mpv)
+       ((#:configure-flags flags)
+        (append flags
+                `("--enable-shaderc" "--enable-libplacebo" "--enable-vulkan")))))))
+
 (define-public mpv-mpris
   (package
     (name "mpv-mpris")
