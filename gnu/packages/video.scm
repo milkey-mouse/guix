@@ -2319,6 +2319,19 @@ images and image hosting sites.")
 (define-public gnome-mpv
   (deprecated-package "gnome-mpv" celluloid))
 
+(define-public mpv-libplacebo
+  (package
+    (inherit mpv)
+    (name "mpv-libplacebo")
+    (inputs (append `(("libepoxy" ,libepoxy)
+                      ("libplacebo" ,libplacebo))
+                    (package-inputs mpv)))
+    (arguments
+     (substitute-keyword-arguments (package-arguments mpv)
+       ((#:configure-flags flags)
+        (append flags
+                `("--enable-shaderc" "--enable-libplacebo" "--enable-vulkan")))))))
+
 (define-public mpv-mpris
   (package
     (name "mpv-mpris")
