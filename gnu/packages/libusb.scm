@@ -510,6 +510,32 @@ broken iOS devices.")
 Apple Property List files in binary or XML.")
     (license license:lgpl2.1+)))
 
+(define-public libimobiledevice-glue
+  ;; No releases yet.
+  (let ((commit "d2ff7969dcd0a12e4f18f63dab03e6cd03054fcb"))
+    (package
+      (name "libimobiledevice-glue")
+      (version (string-append "1.0.0-git-"
+                              (string-take commit 7)))
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url
+                       "https://github.com/libimobiledevice/libimobiledevice-glue")
+                      (commit commit)))
+                (file-name (git-file-name name version))
+                (sha256
+                 (base32
+                  "1ykkqixqdkb6q2yg6sa80zfbllni52a0inl26n1452dzmqj6j1q4"))))
+      (build-system gnu-build-system)
+      (propagated-inputs (list libplist))
+      (native-inputs (list autoconf automake libtool pkg-config))
+      (home-page "https://libimobiledevice.org/")
+      (synopsis "Common code used in the libimobiledevice project")
+      (description "This package provides a library with common code used by
+libraries and tools around the libimobiledevice project.")
+      (license license:lgpl2.1+))))
+
 (define-public libusbmuxd
   (package
     (name "libusbmuxd")
