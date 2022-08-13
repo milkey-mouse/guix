@@ -590,6 +590,33 @@ address books, calendars, notes, and bookmarks, and (using libgpod) synchronize
 music and video to the device.")
     (license license:lgpl2.1+)))
 
+(define-public libimobiledevice-next
+  (let ((commit "2eec1b9a172354c8521123a767d998b17bd2ac18"))
+    (package
+      (inherit libimobiledevice)
+      (name "libimobiledevice-next")
+      (version (string-append (package-version libimobiledevice) "-git-"
+                              (string-take commit 7)))
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url
+                       "https://github.com/libimobiledevice/libimobiledevice")
+                      (commit commit)))
+                (file-name (git-file-name name version))
+                (sha256
+                 (base32
+                  "02mwcrqk8j6cwnh5zivplgxfwq0jly59svjyp14xgxwxdl9jfcs3"))))
+      (arguments
+       (substitute-keyword-arguments (package-arguments libimobiledevice)
+         ((#:configure-flags flags)
+          `(cons ,(string-append "PACKAGE_VERSION=" version)
+                 ,flags))))
+      (inputs (modify-inputs (package-inputs libimobiledevice)
+                (prepend libimobiledevice-glue)))
+      (native-inputs (modify-inputs (package-native-inputs libimobiledevice)
+                       (prepend autoconf automake libtool))))))
+
 (define-public ifuse
   (package
     (name "ifuse")
