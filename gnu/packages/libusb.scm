@@ -665,6 +665,27 @@ users, it means you can sync your music, contacts, photos, etc.
 over USB.")
     (license license:gpl2+)))
 
+(define-public usbmuxd-next
+  (let ((commit "2839789bdb581ede7c331b9b4e07e0d5a89d7d18"))
+    (package
+      (inherit usbmuxd)
+      (name "usbmuxd-next")
+      (version (string-append (package-version usbmuxd) "-git-"
+                              (string-take commit 7)))
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/libimobiledevice/usbmuxd")
+                      (commit commit)))
+                (file-name (git-file-name name version))
+                (sha256
+                 (base32
+                  "1pyfnzn7n99hr5r0phkqp6wkwhcy0hg8mwp8mzmqhq7pzcwqxxc2"))))
+      (inputs (modify-inputs (package-inputs usbmuxd)
+                (prepend libimobiledevice-glue)))
+      (native-inputs (modify-inputs (package-native-inputs usbmuxd)
+                       (prepend autoconf automake libtool))))))
+
 (define-public libmtp
   (package
     (name "libmtp")
