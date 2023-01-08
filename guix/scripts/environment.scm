@@ -822,6 +822,9 @@ WHILE-LIST."
                                         (string-append "/home/" name)
                                         (passwd:dir pwd))))))
             (groups   (list (group-entry (name "users") (gid gid))
+                            (group-entry (name "audio")
+                                         (gid (+ 1 gid))
+                                         (members (list (number->string uid))))
                             (group-entry (gid 65534) ;the overflow GID
                                          (name "overflow"))))
             (home-dir (password-entry-directory passwd))
