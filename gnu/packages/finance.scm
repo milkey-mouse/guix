@@ -587,6 +587,7 @@ do so.")
            python-pyqt
            python-qdarkstyle
            python-qrcode
+           python-trezor
            zbar))
     (arguments
      `(#:tests? #f                      ; no tests
